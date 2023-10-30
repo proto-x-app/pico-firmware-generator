@@ -38,7 +38,7 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     # Bouw en push de Docker image
     - name: Build and Push Docker Image
@@ -53,7 +53,7 @@ jobs:
     if: github.event_name == 'schedule'
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     # Bouw en push de Docker image
     - name: Build and Push Docker Image
