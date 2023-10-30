@@ -1,5 +1,5 @@
 # Gebruik de officiële Ubuntu als een ouderafbeelding
-FROM ubuntu:latest
+FROM ubuntu:23.10
 
 # Set de maintainer label
 LABEL maintainer="github@proto-x.app"
@@ -16,11 +16,6 @@ RUN apt-get update \
     libstdc++-arm-none-eabi-newlib \
     build-essential \
     python3
-
-# Clone de pico-sdk repository en pico-examples als fallback
-RUN git clone https://github.com/raspberrypi/pico-sdk.git $PICO_SDK_PATH
-
-RUN cd $PICO_SDK_PATH && git submodule update --init
 
 # Set de werkmap
 WORKDIR /workspace
