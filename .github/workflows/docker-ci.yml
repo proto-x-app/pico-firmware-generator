@@ -1,0 +1,64 @@
+name: Docker CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - release/v*.*.*
+    tags:
+      - v*.*.*
+  schedule:
+    - cron: '0 0 1 * *'  # Draait op de eerste dag van elke maand
+
+env:
+  IMAGE_NAME: pico-firmware-generator
+
+jobs:
+  build_main:
+    uses: ./.github/workflows/common-steps.yml@main
+    with:
+      docker-image-name: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}-main
+    if: github.ref == 'refs/heads/main'
+
+  build_develop:
+    uses: ./.github/workflows/common-steps.yml@main
+    with:
+      docker-image-name: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}-develop
+    if: github.ref == 'refs/heads/develop'
+
+  build_release:
+    uses: ./.github/workflows/common-steps.yml@main
+    with:
+      docker-image-name: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}-release
+    if: startsWith(github.ref, 'refs/heads/release/')
+
+  release:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    # Bouw en push de Docker image
+    - name: Build and Push Docker Image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
+
+  monthly_build:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    # Bouw en push de Docker image
+    - name: Build and Push Docker Image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:$(date +'%Y.%m.%d')
