@@ -4,10 +4,22 @@
 $ImageName = "pico-firmware-generator"
 $ContainerName = "pico-container"
 $OutputDir = "$HOME/Code/proto-x-app/pico-firmware-generator/output"
+$DockerFile = "$HOME/Code/proto-x-app/pico-firmware-generator/Dockerfile"
+
+# Log function to output JSON formatted logs
+Function Log-Output($message, $status) {
+    $log = @{
+        message = $message
+        status  = $status
+    } | ConvertTo-Json
+    Write-Host $log
+}
 
 # Build the Docker image
 Function Build-Image {
-    docker build -t $ImageName .
+    Log-Output "Building Docker image... $DockerFile" "STARTED"
+    docker build -t $ImageName -f $DockerFile .
+    Log-Output "Docker image built successfully." "COMPLETED"
 }
 
 # Run the Docker container
@@ -15,14 +27,17 @@ Function Run-Container {
     if (-Not (Test-Path $OutputDir)) {
         New-Item -ItemType Directory -Path $OutputDir
     }
+    Log-Output "Running Docker container..." "STARTED"
     docker run -it --rm --name $ContainerName -v ${OutputDir}:/output $ImageName
+    Log-Output "Docker container ran successfully." "COMPLETED"
 }
-
 
 # Remove Docker images and containers
 Function Clean-Up {
+    Log-Output "Cleaning up Docker images and containers..." "STARTED"
     docker rmi -f $ImageName
     docker rm -f $ContainerName
+    Log-Output "Clean up completed." "COMPLETED"
 }
 
 # Main Menu
