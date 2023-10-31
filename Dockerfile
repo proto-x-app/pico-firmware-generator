@@ -1,32 +1,25 @@
-# Gebruik de officiële Ubuntu als een ouderafbeelding
-FROM ubuntu:latest
+# Use a slimmer base image
+FROM ubuntu:rolling
 
-# Set de maintainer label
+# Set the maintainer label
 LABEL maintainer="github@proto-x.app"
 
-# Set omgevingsvariabelen in de Docker-afbeelding
+# Set environment variables in the Docker image
 ENV PICO_SDK_PATH="/workspace/sdk"
 ENV PICO_EXAMPLES_PATH="/workspace/examples"
 
-# Voer package-updates uit en installeer pakketten
-RUN apt-get update \
-    && apt-get install -y git \
-    cmake \
-    gcc-arm-none-eabi \
-    libstdc++-arm-none-eabi-newlib \
-    build-essential \
-    python3
+# Update, install necessary packages, and clean up in a single step to reduce layer size
+RUN apt-get update && \
+    apt-get install -y git cmake gcc-arm-none-eabi libstdc++-arm-none-eabi-newlib build-essential python3 && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Clone de pico-sdk repository en pico-examples als fallback
-RUN git clone https://github.com/raspberrypi/pico-sdk.git $PICO_SDK_PATH
-
-RUN cd $PICO_SDK_PATH && git submodule update --init
-
-# Set de werkmap
+# Set the working directory
 WORKDIR /workspace
 
-# Kopieer het firmware_generator.py-script naar de Docker-afbeelding
+# Copy the firmware_generator.py script to the Docker image
 COPY src/firmware_generator.py /workspace/firmware_generator.py
 
-# Voer het script uit
+# Run the script
 CMD ["python3", "firmware_generator.py"]
