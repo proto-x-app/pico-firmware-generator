@@ -1,5 +1,5 @@
 # Use a slimmer base image
-FROM ubuntu:rolling
+FROM ubuntu:23.10
 
 # Set the maintainer label
 LABEL maintainer="github@proto-x.app"
