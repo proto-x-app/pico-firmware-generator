@@ -51,11 +51,6 @@ jobs:
         repository: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}
         readme-filepath: ./docs/com_docker_hub/readme.md
 
-    - name: Update Docker Hub Image Description
-      run: |
-        chmod +x ./scripts/update_docker_hub_description.sh
-        ./scripts/update_docker_hub_description.sh ${{ secrets.DOCKERHUB_USERNAME }} ${{ secrets.DOCKERHUB_TOKEN }} ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }} ./docs/com_docker_hub/image.md
-  
   update_readme_on_release:
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
